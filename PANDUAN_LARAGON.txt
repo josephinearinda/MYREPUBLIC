@@ -1,0 +1,210 @@
+<?php
+session_start();
+include 'koneksi.php';
+
+if(!isset($_SESSION['user']) || $_SESSION['user']['role']!="pelanggan"){
+    header("Location: pilih_role.php");
+    exit;
+}
+
+$id_user = $_SESSION['user']['id'];
+
+// Mark as read if clicked
+if(isset($_GET['mark_read'])){
+    $notif_id = intval($_GET['mark_read']);
+    mysqli_query($conn, "UPDATE notifikasi SET status='Dibaca' WHERE id='$notif_id' AND user_id='$id_user'");
+}
+
+// Get all notifications
+$notifikasi = mysqli_query($conn, "SELECT * FROM notifikasi WHERE user_id='$id_user' ORDER BY tanggal DESC");
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Notifikasi - MyRepublic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:#f4f9ff;
+}
+
+.navbar{
+    background:linear-gradient(135deg,#0f2027,#1c92d2,#2c5364);
+    padding:20px;
+    color:white;
+    border-bottom-left-radius:25px;
+    border-bottom-right-radius:25px;
+}
+
+.nav-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.nav-menu{
+    display:flex;
+    gap:15px;
+    margin-top:15px;
+    font-size:14px;
+}
+
+.nav-menu a{
+    color:white;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.container{
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+    margin-bottom:15px;
+}
+
+.card h3{
+    margin-top:0;
+    color:#0f2027;
+}
+
+.notif-item{
+    padding:15px;
+    border:1px solid #eee;
+    border-radius:15px;
+    margin-bottom:10px;
+    background:#f9f9f9;
+}
+
+.notif-item.belum-dibaca{
+    background:#e3f2fd;
+    border-left:4px solid #1c92d2;
+}
+
+.notif-item h5{
+    margin:0 0 8px 0;
+    color:#0f2027;
+}
+
+.notif-item p{
+    margin:0 0 8px 0;
+    color:#666;
+    font-size:14px;
+}
+
+.notif-time{
+    font-size:12px;
+    color:#999;
+}
+
+.status-badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.status-belum{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.status-dibaca{
+    background:#e2e3e5;
+    color:#383d41;
+}
+
+.btn-read{
+    padding:8px 12px;
+    border:none;
+    border-radius:8px;
+    background:#1c92d2;
+    color:white;
+    cursor:pointer;
+    font-size:12px;
+    margin-top:10px;
+}
+
+.btn-read:hover{
+    background:#0f2027;
+}
+
+.empty-state{
+    text-align:center;
+    color:#666;
+    padding:40px 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="nav-top">
+        <div>
+            <h2>📬 Notifikasi</h2>
+            <small>Halo, <?= $_SESSION['user']['nama']; ?>!</small>
+        </div>
+        <div>
+            <a href="logout.php" style="color:white;text-decoration:none;">Logout</a>
+        </div>
+    </div>
+    <div class="nav-menu">
+        <a href="home_pelanggan.php"><i class="fas fa-home"></i> Home</a>
+        <a href="dashboard_pelanggan.php"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="status_layanan.php"><i class="fas fa-info-circle"></i> Status Layanan</a>
+        <a href="riwayat.php"><i class="fas fa-history"></i> Riwayat</a>
+        <a href="profil.php"><i class="fas fa-user"></i> Profil</a>
+        <a href="notifikasi.php" class="active"><i class="fas fa-bell"></i> Notifikasi</a>
+    </div>
+</div>
+
+<div class="container">
+
+<?php if(mysqli_num_rows($notifikasi) > 0): ?>
+    <?php while($row = mysqli_fetch_assoc($notifikasi)): ?>
+        <div class="notif-item <?= $row['status'] == 'Belum dibaca' ? 'belum-dibaca' : '' ?>">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div style="flex:1;">
+                    <h5><?= htmlspecialchars($row['judul']); ?></h5>
+                    <p><?= htmlspecialchars($row['pesan']); ?></p>
+                    <small class="notif-time">
+                        <?= date('d/m/Y H:i', strtotime($row['tanggal'])); ?>
+                    </small>
+                </div>
+                <span class="status-badge <?= $row['status'] == 'Belum dibaca' ? 'status-belum' : 'status-dibaca' ?>">
+                    <?= $row['status'] ?>
+                </span>
+            </div>
+            
+            <?php if($row['status'] == 'Belum dibaca'): ?>
+                <a href="notifikasi.php?mark_read=<?= $row['id'] ?>" style="text-decoration:none;">
+                    <button class="btn-read">Tandai Dibaca</button>
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php endwhile; ?>
+<?php else: ?>
+    <div class="empty-state">
+        <p>📭 Tidak ada notifikasi</p>
+    </div>
+<?php endif; ?>
+
+</div>
+
+</body>
+</html>

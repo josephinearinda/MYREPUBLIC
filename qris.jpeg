@@ -1,0 +1,95 @@
+<?php
+session_start();
+include 'koneksi.php';
+
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != "pelanggan"){
+    header("Location: pilih_role.php");
+    exit;
+}
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Promo Spesial - MyRepublic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f2027 0%,#1c92d2 45%,#2c5364 100%);color:#112a44;min-height:100vh;}
+.container{max-width:1080px;margin:0 auto;padding:24px;}
+.header{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:28px;padding:28px 24px;box-shadow:0 20px 50px rgba(0,0,0,0.18);}
+.header h1{margin:0;font-size:34px;color:#eff7ff;}
+.header p{color:#dbe9fb;font-size:16px;line-height:1.75;margin:14px 0 0;}
+.promo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:24px;}
+.promo-card{background:rgba(255,255,255,0.96);border-radius:28px;padding:28px;box-shadow:0 22px 45px rgba(0,0,0,0.12);border:1px solid rgba(15,32,39,0.1);position:relative;overflow:hidden;}
+.promo-card h2{margin:0 0 10px;font-size:26px;color:#0f456c;}
+.promo-card p{color:#33475b;line-height:1.75;margin:0 0 16px;font-size:15px;}
+.promo-card .tag{display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(28,146,210,0.14);color:#0f456c;font-weight:700;font-size:13px;margin-bottom:16px;}
+.promo-card ul{padding-left:18px;margin:0;color:#3e5670;}
+.promo-card ul li{margin-bottom:10px;}
+.promo-card .price{font-size:28px;font-weight:800;color:#0f456c;margin:16px 0 16px;}
+.promo-card .card-footer{display:flex;justify-content:flex-start;align-items:center;gap:12px;margin-top:12px;}
+.promo-card .btn-primary{width:100%;}
+.action-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:30px;flex-wrap:wrap;}
+.action-row a{padding:14px 24px;border-radius:16px;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:#1c92d2;color:white;border:1px solid transparent;padding:14px 24px;border-radius:16px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background 0.25s ease, transform 0.2s ease;}
+.btn-secondary{background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.25);padding:14px 24px;border-radius:16px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:#0f2027;transform:translateY(-1px);}
+.btn-secondary:hover{background:rgba(255,255,255,0.25);}
+@media (max-width: 860px){.promo-grid{grid-template-columns:1fr;}}
+@media (max-width: 640px){.container{padding:16px;}.header{padding:20px;}.header h1{font-size:28px;}.action-row{flex-direction:column;align-items:stretch;}.promo-card{padding:22px;}.promo-card .price{font-size:24px;}.promo-card .card-footer{margin-top:18px;}}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Promo Spesial MyRepublic</h1>
+        <p>Nikmati paket internet unggulan dengan harga promosi khusus bulan ini. Pilih paket yang sesuai dengan kebutuhan kamu dan dapatkan pengalaman online lebih cepat dan lancar.</p>
+    </div>
+
+    <div class="promo-grid">
+        <div class="promo-card">
+            <div class="tag"><i class="fas fa-bolt"></i> Diskon 20%</div>
+            <h2>Gaming Pro Blaze</h2>
+            <p>Versi promo khusus untuk gamer dan streamer dengan kecepatan tinggi dan kestabilan terbaik.</p>
+            <ul>
+                <li>Diskon 20% selama 3 bulan pertama</li>
+                <li>Prioritas bandwidth gaming</li>
+                <li>Stabil untuk 6-8 perangkat</li>
+            </ul>
+            <div class="price">Rp 400.000 / bulan</div>
+            <div class="card-footer"><a href="detail.php?paket=gaming&promo=gaming20" class="btn-primary"><i class="fas fa-shopping-cart"></i> Pilih Paket</a></div>
+        </div>
+        <div class="promo-card">
+            <div class="tag"><i class="fas fa-gift"></i> Paket Hemat</div>
+            <h2>Super Seru Smart</h2>
+            <p>Paket hemat terbaik untuk keluarga dan aktivitas harian dengan koneksi mulus sepanjang hari.</p>
+            <ul>
+                <li>Potongan harga Rp 50.000</li>
+                <li>Durasi aktif 30 hari per bulan</li>
+                <li>Streaming lancar untuk keluarga kecil</li>
+            </ul>
+            <div class="price">Rp 300.000 / bulan</div>
+            <div class="card-footer"><a href="detail.php?paket=super&promo=supercore" class="btn-primary"><i class="fas fa-shopping-cart"></i> Pilih Paket</a></div>
+        </div>
+        <div class="promo-card">
+            <div class="tag"><i class="fas fa-star"></i> Premium Elite</div>
+            <h2>Ultra Max 300</h2>
+            <p>Paket premium untuk rumah besar dan bisnis rumahan yang butuh koneksi maksimal tanpa gangguan.</p>
+            <ul>
+                <li>Gratis 1 bulan layanan tambahan</li>
+                <li>Prioritas layanan pelanggan</li>
+                <li>Uptime maksimal untuk semua perangkat</li>
+            </ul>
+            <div class="price">Rp 750.000 / bulan</div>
+            <div class="card-footer"><a href="detail.php?paket=ultra&promo=ultraelite" class="btn-primary"><i class="fas fa-shopping-cart"></i> Pilih Paket</a></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

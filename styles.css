@@ -1,0 +1,314 @@
+<?php
+session_start();
+include 'koneksi.php';
+
+if(!isset($_SESSION['user']) || $_SESSION['user']['role']!="pelanggan"){
+    header("Location: pilih_role.php");
+    exit;
+}
+
+$id_user = $_SESSION['user']['id'];
+
+// Get transaction data
+$transaksi = mysqli_query($conn, "SELECT * FROM transaksi WHERE user_id='$id_user' ORDER BY id DESC");
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Status Layanan - MyRepublic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:#f4f9ff;
+}
+
+.navbar{
+    background:linear-gradient(135deg,#0f2027,#1c92d2,#2c5364);
+    padding:20px;
+    color:white;
+    border-bottom-left-radius:25px;
+    border-bottom-right-radius:25px;
+}
+
+.nav-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.nav-menu{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:15px;
+    font-size:14px;
+}
+
+.nav-menu a{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:14px;
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+    transition:background 0.2s ease;
+}
+
+.nav-menu a span,
+.nav-menu a i{
+    display:inline-flex;
+    width:20px;
+    justify-content:center;
+}
+
+.nav-menu a:hover{
+    background:rgba(255,255,255,0.12);
+    color:white;
+}
+
+.nav-menu a:focus,
+.nav-menu a:active,
+.nav-menu a:visited{
+    color:white;
+    background:transparent;
+    outline:none;
+}
+
+.nav-menu a.active{
+    background:rgba(255,255,255,0.16);
+}
+
+.container{
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+    margin-bottom:20px;
+}
+
+.card h3{
+    margin-top:0;
+    color:#0f2027;
+}
+
+.status-badge{
+    display:inline-block;
+    padding:8px 12px;
+    border-radius:20px;
+    font-weight:600;
+    font-size:12px;
+}
+
+.status-aktif{
+    background:#d4edda;
+    color:#155724;
+}
+
+.status-terjadwal{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.status-diproses{
+    background:#cfe2ff;
+    color:#084298;
+}
+
+.status-selesai{
+    background:#d1e7dd;
+    color:#0f5132;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+    text-align:left;
+}
+
+th{
+    background:#1c92d2;
+    color:white;
+}
+
+.detail-item{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+}
+
+.detail-item:last-child{
+    border-bottom:none;
+}
+
+.detail-label{
+    font-weight:600;
+    color:#666;
+}
+
+.detail-value{
+    color:#0f2027;
+    font-weight:500;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:10px;
+    background:#1c92d2;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0f2027;
+}
+
+.back-link{
+    display:inline-block;
+    margin-bottom:20px;
+    color:#1c92d2;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.back-link:hover{
+    text-decoration:underline;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="nav-top">
+        <div>
+            <h2>Status Layanan</h2>
+            <small>Pantau status layanan internet Anda</small>
+        </div>
+        <div>
+            <a href="logout.php" style="color:white;text-decoration:none;">Logout</a>
+        </div>
+    </div>
+    <div class="nav-menu">
+        <a href="home_pelanggan.php"><i class="fas fa-home"></i> Home</a>
+        <a href="dashboard_pelanggan.php"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="status_layanan.php" class="active"><i class="fas fa-info-circle"></i> Status Layanan</a>
+        <a href="riwayat.php"><i class="fas fa-history"></i> Riwayat</a>
+        <a href="profil.php"><i class="fas fa-user"></i> Profil</a>
+    </div>
+</div>
+
+<div class="container">
+
+<?php if(isset($_SESSION['msg'])): ?>
+<div style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;padding:12px;border-radius:10px;margin-bottom:15px;">
+<?= $_SESSION['msg']; ?>
+</div>
+<?php unset($_SESSION['msg']); endif; ?>
+
+<h3>Riwayat Layanan Anda</h3>
+
+<?php
+if(mysqli_num_rows($transaksi) > 0){
+    while($row = mysqli_fetch_assoc($transaksi)){
+        $status = $row['status'];
+        $status_class = 'status-diproses';
+        
+        if($status == 'Lunas') $status_class = 'status-aktif';
+        elseif($status == 'Terjadwal') $status_class = 'status-terjadwal';
+        elseif($status == 'Selesai') $status_class = 'status-selesai';
+        
+        // Get jadwal info
+        $jadwal_query = mysqli_query($conn, "SELECT * FROM jadwal WHERE transaksi_id='{$row['id']}' ORDER BY tanggal DESC LIMIT 1");
+        $jadwal = mysqli_fetch_assoc($jadwal_query);
+        
+        ?>
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h4 style="margin:0;">Paket: <?= htmlspecialchars($row['paket']); ?></h4>
+                <span class="status-badge <?= $status_class; ?>"><?= $status; ?></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">ID Transaksi</span>
+                <span class="detail-value">#<?= $row['id']; ?></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Paket Layanan</span>
+                <span class="detail-value"><?= htmlspecialchars($row['paket']); ?></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Harga</span>
+                <span class="detail-value">Rp <?= number_format($row['harga'] ?? 0, 0, ',', '.'); ?></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Metode Pembayaran</span>
+                <span class="detail-value"><?= htmlspecialchars($row['metode']); ?></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Status Pembayaran</span>
+                <span class="detail-value"><?= $row['status'] == 'Lunas' ? 'Lunas' : 'Menunggu Pembayaran'; ?></span>
+            </div>
+            
+            <?php if($jadwal): ?>
+            <hr style="margin:15px 0; border:none; border-top:1px solid #eee;">
+            <h5 style="margin-top:15px; margin-bottom:10px;">Informasi Pemasangan</h5>
+            
+            <div class="detail-item">
+                <span class="detail-label">Jadwal Pemasangan</span>
+                <span class="detail-value"><?= date('d/m/Y H:i', strtotime($jadwal['tanggal'])); ?></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Status Pemasangan</span>
+                <span class="detail-value"><?= $jadwal['status']; ?></span>
+            </div>
+            
+            <?php if($jadwal['laporan']): ?>
+            <div class="detail-item">
+                <span class="detail-label">Laporan Teknisi</span>
+                <span class="detail-value"><?= htmlspecialchars($jadwal['laporan']); ?></span>
+            </div>
+            <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+} else {
+    ?>
+    <div class="card">
+        <p style="color:#666; text-align:center;">Belum ada riwayat layanan. <a href="home_pelanggan.php">Pilih paket sekarang</a></p>
+    </div>
+    <?php
+}
+?>
+
+</div>
+
+</body>
+</html>
