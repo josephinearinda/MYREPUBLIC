@@ -1,15 +1,7 @@
--- ===================================
--- MYREPUBLIC DATABASE BACKUP
--- ===================================
--- Database: myrepublic_db
--- Dibuat untuk migrasi dari XAMPP ke Laragon
 
 CREATE DATABASE IF NOT EXISTS `myrepublic_db`;
 USE `myrepublic_db`;
 
--- ===================================
--- Tabel: users
--- ===================================
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `nama` VARCHAR(255) NOT NULL,
@@ -19,9 +11,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===================================
--- Tabel: paket
--- ===================================
 CREATE TABLE IF NOT EXISTS `paket` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `nama_paket` VARCHAR(255) NOT NULL,
@@ -31,9 +20,6 @@ CREATE TABLE IF NOT EXISTS `paket` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===================================
--- Tabel: transaksi
--- ===================================
 CREATE TABLE IF NOT EXISTS `transaksi` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL,
@@ -47,9 +33,7 @@ CREATE TABLE IF NOT EXISTS `transaksi` (
   FOREIGN KEY (`paket_id`) REFERENCES `paket`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===================================
--- Tabel: jadwal
--- ===================================
+
 CREATE TABLE IF NOT EXISTS `jadwal` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `transaksi_id` INT NOT NULL,
@@ -60,9 +44,7 @@ CREATE TABLE IF NOT EXISTS `jadwal` (
   FOREIGN KEY (`transaksi_id`) REFERENCES `transaksi`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===================================
--- Tabel: laporan
--- ===================================
+
 CREATE TABLE IF NOT EXISTS `laporan` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `transaksi_id` INT NOT NULL,
@@ -75,9 +57,6 @@ CREATE TABLE IF NOT EXISTS `laporan` (
   FOREIGN KEY (`cs_id`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===================================
--- Tabel: notifikasi
--- ===================================
 CREATE TABLE IF NOT EXISTS `notifikasi` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL,
@@ -89,18 +68,13 @@ CREATE TABLE IF NOT EXISTS `notifikasi` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===================================
--- Data Sample (Opsional)
--- ===================================
-
--- Sample user dengan berbagai role
 INSERT INTO `users` (`nama`, `email`, `password`, `role`) VALUES
 ('Admin', 'admin@myrepublic.com', '$2y$10$YourHashedPasswordHere', 'admin'),
 ('Customer Service', 'cs@myrepublic.com', '$2y$10$YourHashedPasswordHere', 'cs'),
 ('Teknisi Instalasi', 'teknisi@myrepublic.com', '$2y$10$YourHashedPasswordHere', 'teknisi'),
 ('Pelanggan Demo', 'pelanggan@myrepublic.com', '$2y$10$YourHashedPasswordHere', 'pelanggan');
 
--- Sample paket
+
 INSERT INTO `paket` (`nama_paket`, `kecepatan`, `harga`, `deskripsi`) VALUES
 ('Family Plan', '50 Mbps', 300000, 'Paket hemat untuk keluarga kecil dengan penggunaan standar.'),
 ('Super Seru', '100 Mbps', 350000, 'Cocok untuk streaming, browsing, dan kebutuhan rumah tangga.'),
